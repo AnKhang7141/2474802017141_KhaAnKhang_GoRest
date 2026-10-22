@@ -1,4 +1,3 @@
-
 name: GoRest API Monitor
 
 on:
@@ -39,4 +38,3 @@ jobs:
             }
             print "PASS: API response time is below 800ms"
           }'
-
