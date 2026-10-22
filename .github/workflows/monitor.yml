@@ -1,1 +1,42 @@
 
+name: GoRest API Monitor
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor-api:
+    name: Check API Availability and Response Time
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check GoRest API
+        run: |
+          curl -sS -o response.json \
+            -w "%{http_code} %{time_total}\n" \
+            "https://gorest.co.in/public/v2/users" \
+            > result.txt
+
+          cat result.txt
+
+          STATUS=$(awk '{print $1}' result.txt)
+          TIME=$(awk '{print $2}' result.txt)
+
+          echo "HTTP Status: $STATUS"
+          echo "Response Time: ${TIME}s"
+
+          if [ "$STATUS" != "200" ]; then
+            echo "API is unavailable!"
+            exit 1
+          fi
+
+          awk -v time="$TIME" 'BEGIN {
+            if (time >= 0.8) {
+              print "FAIL: Response time must be below 800ms"
+              exit 1
+            }
+            print "PASS: API response time is below 800ms"
+          }'
+
