@@ -5,13 +5,43 @@ on: push
 jobs:
   automated-api-tests:
     runs-on: windows-latest
+    env:
+      POSTMAN_BASE_URL: https://gorest.co.in/public/v2
+      POSTMAN_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
+      POSTMAN_NAME: "Test User"
+      POSTMAN_GENDER: male
+      POSTMAN_STATUS: active
+      POSTMAN_EMAIL: "test-${{ github.run_id }}@example.com"
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Postman CLI
         run: |
           powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
+
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Sync Postman environment values
+        shell: powershell
+        run: |
+          $path = "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+
+          foreach ($item in $json.values) {
+            switch ($item.key) {
+              "baseUrl" { $item.value = "$env:POSTMAN_BASE_URL" }
+              "token" { $item.value = "$env:POSTMAN_TOKEN" }
+              "name" { $item.value = "$env:POSTMAN_NAME" }
+              "gender" { $item.value = "$env:POSTMAN_GENDER" }
+              "status" { $item.value = "$env:POSTMAN_STATUS" }
+              "email" { $item.value = "$env:POSTMAN_EMAIL" }
+            }
+          }
+
+          $json | ConvertTo-Json -Depth 20 | Set-Content $path
+
       - name: Run API tests
         run: |
           postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" -e "59055469-fa8d851f-679e-44f2-8810-cb478432ba42"
