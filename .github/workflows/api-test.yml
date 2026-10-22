@@ -1,10 +1,12 @@
 name: Automated API tests using Postman CLI
 
-on: push
+on:
+  push:
 
 jobs:
   automated-api-tests:
     runs-on: windows-latest
+
     env:
       POSTMAN_BASE_URL: https://gorest.co.in/public/v2
       POSTMAN_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
@@ -14,13 +16,16 @@ jobs:
       POSTMAN_EMAIL: "test-${{ github.run_id }}@example.com"
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install Postman CLI
+        shell: powershell
         run: |
           powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
 
       - name: Login to Postman CLI
+        shell: powershell
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
       - name: Validate required secrets
@@ -47,6 +52,7 @@ jobs:
               "gender"  { $item.value = "$env:POSTMAN_GENDER" }
               "status"  { $item.value = "$env:POSTMAN_STATUS" }
               "email"   { $item.value = "$env:POSTMAN_EMAIL" }
+              "userEmail" { $item.value = "$env:POSTMAN_EMAIL" }
             }
           }
 
