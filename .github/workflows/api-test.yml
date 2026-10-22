@@ -1,48 +1,32 @@
-name: Automated API tests using Postman CLI
+
+name: GoRest API Automated Tests
 
 on:
   push:
-    branches:
-      - main
-      - master
-      - develop
-  pull_request:
-    branches:
-      - main
-      - master
-      - develop
   workflow_dispatch:
 
 jobs:
   automated-api-tests:
-    runs-on: windows-latest
-    timeout-minutes: 20
-
-    env:
-      POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Postman CLI
-        shell: powershell
-        run: |
-          $ErrorActionPreference = "Stop"
-          $ProgressPreference = "SilentlyContinue"
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-          Invoke-WebRequest -Uri "https://dl-cli.pstmn.io/install/win64.ps1" -OutFile "$env:TEMP\postman-cli.ps1"
-          powershell.exe -ExecutionPolicy Bypass -File "$env:TEMP\postman-cli.ps1"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Login to Postman CLI
-        shell: powershell
-        run: |
-          if (-not $env:POSTMAN_API_KEY) {
-            throw "Missing POSTMAN_API_KEY secret. Add it in GitHub repository settings -> Secrets and variables -> Actions."
-          }
-          postman login --with-api-key "$env:POSTMAN_API_KEY"
+      - name: Install Newman
+        run: npm install -g newman
 
-      - name: Run API tests
-        shell: powershell
+      - name: Run GoRest API tests
+        env:
+          GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
         run: |
-          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" --environment "59055469-fa8d851f-679e-44f2-8810-cb478432ba42"
+          newman run GoRest.postman_collection.json \
+            -e GoRest.postman_environment.json \
+            -d users.csv \
+            --env-var "token=$GOREST_TOKEN" \
+            --reporters cli
