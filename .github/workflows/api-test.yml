@@ -23,10 +23,20 @@ jobs:
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
+      - name: Validate required secrets
+        shell: powershell
+        run: |
+          if ([string]::IsNullOrWhiteSpace("${{ secrets.GOREST_API_TOKEN }}")) {
+            throw "Missing GitHub secret GOREST_API_TOKEN."
+          }
+          if ([string]::IsNullOrWhiteSpace("${{ secrets.POSTMAN_API_KEY }}")) {
+            throw "Missing GitHub secret POSTMAN_API_KEY."
+          }
+
       - name: Sync Postman environment values
         shell: powershell
         run: |
-          $path = Join-Path $PWD "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
+          $path = Join-Path $env:GITHUB_WORKSPACE "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
           $json = Get-Content $path -Raw | ConvertFrom-Json
 
           foreach ($item in $json.values) {
@@ -45,4 +55,5 @@ jobs:
       - name: Run API tests
         shell: powershell
         run: |
-          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" -e "$PWD/2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
+          $envPath = Join-Path $env:GITHUB_WORKSPACE "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
+          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" -e $envPath
