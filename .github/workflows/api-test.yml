@@ -34,7 +34,7 @@ jobs:
         shell: powershell
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
 
-      - name: Sync Postman environment values
+      - name: Update Postman environment
         shell: powershell
         run: |
           $path = Join-Path $env:GITHUB_WORKSPACE "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
@@ -42,13 +42,13 @@ jobs:
 
           foreach ($item in $json.values) {
             switch ($item.key) {
-              "baseUrl"    { $item.value = "$env:POSTMAN_BASE_URL" }
-              "token"      { $item.value = "$env:GOREST_TOKEN" }
-              "name"       { $item.value = "$env:POSTMAN_NAME" }
-              "gender"     { $item.value = "$env:POSTMAN_GENDER" }
-              "status"     { $item.value = "$env:POSTMAN_STATUS" }
-              "email"      { $item.value = "$env:POSTMAN_EMAIL" }
-              "userEmail"  { $item.value = "$env:POSTMAN_EMAIL" }
+              "baseUrl"   { $item.value = "$env:POSTMAN_BASE_URL" }
+              "token"     { $item.value = "$env:GOREST_TOKEN" }
+              "name"      { $item.value = "$env:POSTMAN_NAME" }
+              "gender"    { $item.value = "$env:POSTMAN_GENDER" }
+              "status"    { $item.value = "$env:POSTMAN_STATUS" }
+              "email"     { $item.value = "$env:POSTMAN_EMAIL" }
+              "userEmail" { $item.value = "$env:POSTMAN_EMAIL" }
             }
           }
 
