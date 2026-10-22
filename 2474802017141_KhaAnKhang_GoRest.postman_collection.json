@@ -71,7 +71,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Returned user ID matches\", function () {\r\n    pm.expect(String(data.id)).to.eql(\r\n        String(pm.environment.get(\"userId\"))\r\n    );\r\n});\r\n  "
+                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Returned user ID matches requested user ID\", function () {\r\n    pm.expect(data.id).to.eql(Number(pm.environment.get(\"userId\")));\r\n});\r\n\r\npm.test(\"User email matches\", function () {\r\n    pm.expect(data.email).to.eql(pm.environment.get(\"userEmail\"));\r\n});\r\n\r\npm.test(\"User status is active\", function () {\r\n    pm.expect(data.status).to.eql(\"active\");\r\n});\r\n"
                 ]
               }
             }
@@ -100,7 +100,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"User status is inactive\", function () {\r\n    pm.expect(pm.response.json().status).to.eql(\"inactive\");\r\n});\r\n  "
+                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"User status is inactive\", function () {\r\n    pm.expect(pm.response.json().status).to.eql(\"inactive\");\r\n});\r\n"
                 ]
               }
             }
@@ -179,9 +179,22 @@
     },
     {
       "name": "Negative_Cases",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
       "item": [
         {
           "name": "Create User Without Token",
+          "auth": {
+            "type": "noauth"
+          },
           "request": {
             "method": "POST",
             "header": [],
