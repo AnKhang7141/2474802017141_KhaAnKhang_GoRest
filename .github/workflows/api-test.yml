@@ -9,7 +9,7 @@ jobs:
 
     env:
       POSTMAN_BASE_URL: https://gorest.co.in/public/v2
-      POSTMAN_TOKEN: "c1874403232ea86df30697418c69d4d7b165e7d2db32d6bc5a273d1674f72c51"   # token trực tiếp
+      GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
       POSTMAN_NAME: "Test User"
       POSTMAN_GENDER: male
       POSTMAN_STATUS: active
@@ -19,10 +19,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate GoRest token
+        shell: powershell
+        run: |
+          if (-not "${{ secrets.GOREST_TOKEN }}") {
+            throw "Missing GitHub secret: GOREST_TOKEN"
+          }
+
       - name: Install Postman CLI
         shell: powershell
         run: |
-          powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
+          powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl.pstmn.io/cli/install.ps1'))"
 
       - name: Login to Postman CLI
         shell: powershell
@@ -36,13 +43,13 @@ jobs:
 
           foreach ($item in $json.values) {
             switch ($item.key) {
-              "baseUrl" { $item.value = "$env:POSTMAN_BASE_URL" }
-              "token"   { $item.value = "$env:POSTMAN_TOKEN" }
-              "name"    { $item.value = "$env:POSTMAN_NAME" }
-              "gender"  { $item.value = "$env:POSTMAN_GENDER" }
-              "status"  { $item.value = "$env:POSTMAN_STATUS" }
-              "email"   { $item.value = "$env:POSTMAN_EMAIL" }
-              "userEmail" { $item.value = "$env:POSTMAN_EMAIL" }
+              "baseUrl"    { $item.value = "$env:POSTMAN_BASE_URL" }
+              "token"      { $item.value = "$env:GOREST_TOKEN" }
+              "name"       { $item.value = "$env:POSTMAN_NAME" }
+              "gender"     { $item.value = "$env:POSTMAN_GENDER" }
+              "status"     { $item.value = "$env:POSTMAN_STATUS" }
+              "email"      { $item.value = "$env:POSTMAN_EMAIL" }
+              "userEmail"  { $item.value = "$env:POSTMAN_EMAIL" }
             }
           }
 
