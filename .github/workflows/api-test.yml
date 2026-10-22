@@ -1,4 +1,5 @@
-name: Automated API tests using Postman CLI
+
+name: GoRest API Automated Tests
 
 on:
   push:
@@ -12,18 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Postman CLI
-        run: |
-          curl -fsSL https://dl-cli.pstmn.io/install/linux64.sh | sh
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Login to Postman CLI
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run GoRest API tests
         env:
-          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
         run: |
-          postman login --with-api-key "$POSTMAN_API_KEY"
-
-      - name: Run API tests
-        run: |
-          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" \
-            -e "59055469-fa8d851f-679e-44f2-8810-cb478432ba42" \
-            -d "users.csv"
+          newman run GoRest.postman_collection.json \
+            -e GoRest.postman_environment.json \
+            -d users.csv \
+            --env-var "token=$GOREST_TOKEN" \
+            --reporters cli
