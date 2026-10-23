@@ -7,11 +7,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Postman CLI
         run: |
           powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
+
       - name: Login to Postman CLI
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
       - name: Run API tests
         run: |
-          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339"
+          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" --environment "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
