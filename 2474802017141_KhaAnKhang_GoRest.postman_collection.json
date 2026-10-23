@@ -1,316 +1,41 @@
 {
-  "info": {
-    "_postman_id": "dbd9a4fc-c81b-4e47-b036-32ff57ead339",
-    "name": "2474802017141_KhaAnKhang_GoRest",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "59055469",
-    "_collection_link": "https://go.postman.co/collection/59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339?source=collection_link"
-  },
-  "item": [
+  "name": "Create Duplicate User",
+  "event": [
     {
-      "name": "Positive_Cases",
-      "item": [
-        {
-          "name": "Create User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "\r",
-                  "pm.test(\"Status code is 201\", function () {\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "});\r",
-                  "\r",
-                  "const data = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"User has an ID\", function () {\r",
-                  "    pm.expect(data.id).to.exist;\r",
-                  "});\r",
-                  "\r",
-                  "if (data.id) {\r",
-                  "    pm.environment.set(\"userId\", data.id);\r",
-                  "    pm.environment.set(\"userEmail\", data.email);\r",
-                  "}\r",
-                  "\r",
-                  "pm.test(\"Response time is acceptable\", function () {\r",
-                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
-                  "});\r",
-                  "  "
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "\r\n{\r\n  \"name\": \"{{name}}\",\r\n  \"gender\": \"{{gender}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"status\": \"{{status}}\"\r\n}\r\n  "
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\nconst data = pm.response.json();\r\n\r\npm.test(\"Returned user ID matches\", function () {\r\n    pm.expect(data.id).to.eql(Number(pm.environment.get(\"userId\")));\r\n});\r\n"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "\r\npm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"User status is inactive\", function () {\r\n    pm.expect(pm.response.json().status).to.eql(\"inactive\");\r\n});\r\n"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "\r\n{\r\n  \"status\": \"inactive\"\r\n}\r\n  ",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Inactive User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "\r",
-                  "pm.test(\"Status code is 204\", function () {\r",
-                  "    pm.response.to.have.status(204);\r",
-                  "});\r",
-                  "  "
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "auth": {
-        "type": "bearer",
-        "bearer": [
-          {
-            "key": "token",
-            "value": "{{token}}",
-            "type": "string"
-          }
-        ]
+      "listen": "test",
+      "script": {
+        "exec": [
+          "pm.test(\"Duplicate email is rejected\", function () {",
+          "    pm.expect(pm.response.code).to.eql(422);",
+          "});",
+          "",
+          "pm.test(\"Error response is returned\", function () {",
+          "    const data = pm.response.json();",
+          "    pm.expect(data).to.be.an(\"array\");",
+          "    pm.expect(data.length).to.be.above(0);",
+          "});"
+        ],
+        "type": "text/javascript"
       }
+    }
+  ],
+  "request": {
+    "method": "POST",
+    "url": "{{baseUrl}}/users",
+    "header": [],
+    "body": {
+      "mode": "raw",
+      "raw": "{\n  \"name\": \"Duplicate User\",\n  \"gender\": \"male\",\n  \"email\": \"{{userEmail}}\",\n  \"status\": \"active\"\n}"
     },
-    {
-      "name": "Negative_Cases",
-      "item": [
+    "auth": {
+      "type": "bearer",
+      "bearer": [
         {
-          "name": "Create User Without Token",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "\r\n{\r\n  \"name\": \"Test No Token\",\r\n  \"gender\": \"male\",\r\n  \"email\": \"no.token.lab05@example.com\",\r\n  \"status\": \"active\"\r\n}\r\n  ",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Duplicate User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "\r",
-                  "pm.test(\"Duplicate email is rejected\", function () {\r",
-                  "    pm.expect(pm.response.code).to.eql(422);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Error response is returned\", function () {\r",
-                  "    const data = pm.response.json();\r",
-                  "    pm.expect(data).to.be.an(\"array\");\r",
-                  "    pm.expect(data.length).to.be.above(0);\r",
-                  "});\r",
-                  "  "
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "\r\n{\r\n  \"name\": \"Duplicate User\",\r\n  \"gender\": \"male\",\r\n  \"email\": \"{{userEmail}}\",\r\n  \"status\": \"active\"\r\n}\r\n  ",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/users",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users"
-              ]
-            }
-          },
-          "auth": {
-            "type": "bearer",
-            "bearer": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-              }
-            ]
-          },
-          "response": []
-        },
-        {
-          "name": "Verify Deleted User",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "\r",
-                  "pm.test(\"Deleted user cannot be found\", function () {\r",
-                  "    pm.response.to.have.status(404);\r",
-                  "});\r",
-                  "  "
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/{{userId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{userId}}"
-              ]
-            }
-          },
-          "auth": {
-            "type": "bearer",
-            "bearer": [
-              {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
-              }
-            ]
-          },
-          "response": []
+          "key": "token",
+          "value": "{{token}}",
+          "type": "string"
         }
       ]
     }
-  ]
+  }
 }
