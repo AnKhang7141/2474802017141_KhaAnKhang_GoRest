@@ -1,61 +1,17 @@
 name: Automated API tests using Postman CLI
 
-on:
-  push
+on: push
 
 jobs:
   automated-api-tests:
     runs-on: windows-latest
-
-    env:
-      POSTMAN_BASE_URL: https://gorest.co.in/public/v2
-      GOREST_TOKEN: ${{ secrets.GOREST_TOKEN }}
-      POSTMAN_NAME: "Test User"
-      POSTMAN_GENDER: male
-      POSTMAN_STATUS: active
-      POSTMAN_EMAIL: "test-${{ github.run_id }}@example.com"
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate required secrets
-        shell: pwsh
-        run: |
-          if (-not "${{ secrets.GOREST_TOKEN }}") { throw "Missing GitHub secret: GOREST_TOKEN" }
-          if (-not "${{ secrets.POSTMAN_API_KEY }}") { throw "Missing GitHub secret: POSTMAN_API_KEY" }
-
+      - uses: actions/checkout@v4
       - name: Install Postman CLI
-        shell: powershell
         run: |
           powershell.exe -NoProfile -InputFormat None -ExecutionPolicy AllSigned -Command "[System.Net.ServicePointManager]::SecurityProtocol = 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://dl-cli.pstmn.io/install/win64.ps1'))"
-
       - name: Login to Postman CLI
-        shell: powershell
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-
-      - name: Update Postman environment
-        shell: powershell
-        run: |
-          $path = Join-Path $env:GITHUB_WORKSPACE "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
-          $json = Get-Content $path -Raw | ConvertFrom-Json
-
-          foreach ($item in $json.values) {
-            switch ($item.key) {
-              "baseUrl"   { $item.value = "$env:POSTMAN_BASE_URL" }
-              "token"     { $item.value = "$env:GOREST_TOKEN" }
-              "name"      { $item.value = "$env:POSTMAN_NAME" }
-              "gender"    { $item.value = "$env:POSTMAN_GENDER" }
-              "status"    { $item.value = "$env:POSTMAN_STATUS" }
-              "email"     { $item.value = "$env:POSTMAN_EMAIL" }
-              "userEmail" { $item.value = "$env:POSTMAN_EMAIL" }
-            }
-          }
-
-          $json | ConvertTo-Json -Depth 20 | Set-Content $path -Encoding utf8
-
       - name: Run API tests
-        shell: powershell
         run: |
-          $envPath = Join-Path $env:GITHUB_WORKSPACE "2474802017141_KhaAnKhang_GoRest_Env.postman_environment.json"
-          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339" -e $envPath
+          postman collection run "59055469-dbd9a4fc-c81b-4e47-b036-32ff57ead339"
